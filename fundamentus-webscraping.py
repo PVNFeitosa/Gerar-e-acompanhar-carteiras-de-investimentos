@@ -3,6 +3,9 @@ from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 import pandas as pd
+from sqlalchemy import create_engine
+
+my_conn=create_engine("mysql://sqluser:password@localhost/ATIVOS")
 
 def trataHTML(input):
     input=input.decode('ISO-8859-1')                        #Decodificar
@@ -48,3 +51,5 @@ fiis = coletaInfo(htmlFiis)
 print(acoes)
 print(fiis)
 
+acoes.to_sql(name='ACOES',con=my_conn)
+fiis.to_sql(name='FIIS',con=my_conn)
