@@ -1,4 +1,4 @@
-## Projeto Ruffy
+## Projeto para investimentos
 
 A finalidade do projeto é desenvolver um sistema de geração e acompanhamento de carteiras de investimentos.
 
