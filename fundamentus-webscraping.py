@@ -8,8 +8,8 @@ from sqlalchemy import create_engine
 my_conn=create_engine("mysql://sqluser:password@localhost/ATIVOS")
 
 def trataHTML(input):
-    input=input.decode('ISO-8859-1')                        #Decodificar
-    return " ".join(input.split()).replace('> <', '><')     #Transformar html em texto contínuo sem espaços
+    input=input.decode('ISO-8859-1')
+    return " ".join(input.split()).replace('> <', '><')
 
 def requisitaURL(url, headers):
     try:
@@ -23,10 +23,10 @@ def requisitaURL(url, headers):
         print(e.reason)
     return trataHTML(html)
 
-def coletaInfo(html):
-    soup =  BeautifulSoup(html, 'html.parser')                  #Interpretador HTML
-    colunas=[item.getText() for item in soup.find_all('th')]    #Coletando nome das colunas
-    infoAtivos=pd.DataFrame(columns=colunas)                    #Criando dataFrame vazio
+def coletaDadosHTML(html):
+    soup =  BeautifulSoup(html, 'html.parser')
+    colunas=[item.getText() for item in soup.find_all('th')] # Esconder 'th'
+    infoAtivos=pd.DataFrame(columns=colunas)
     
     k=0
     for item in soup.find_all('tr'):                            #Lendo e adicionando linha a linha
@@ -44,9 +44,8 @@ headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53
 htmlAcoes = requisitaURL(urlAcoes, headers)
 htmlFiis = requisitaURL(urlFiis, headers)
 
-
-acoes = coletaInfo(htmlAcoes)
-fiis = coletaInfo(htmlFiis)
+acoes = coletaDadosHTML(htmlAcoes)
+fiis = coletaDadosHTML(htmlFiis)
 
 print(acoes)
 print(fiis)
