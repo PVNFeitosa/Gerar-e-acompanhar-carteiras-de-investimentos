@@ -4,38 +4,38 @@ from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 import pandas as pd
 from sqlalchemy import create_engine
-
-my_conn=create_engine("mysql://sqluser:password@localhost/ATIVOS")
+import os
 
 def trataHTML(input):
+
     input=input.decode('ISO-8859-1')
+
     return " ".join(input.split()).replace('> <', '><')
 
 def requisitaURL(url, headers):
+
     try:
-        req = Request(url, headers=headers)
-        response=urlopen(req)
+        requisicao = Request(url, headers=headers)
+        response=urlopen(requisicao)
         html=response.read()
     #Erros de requisição
     except HTTPError as e:
         print(e.status,e.reason)
     except URLError as e:
         print(e.reason)
+
     return trataHTML(html)
 
 def coletaDadosHTML(html):
+
     soup =  BeautifulSoup(html, 'html.parser')
-    colunas=[item.getText() for item in soup.find_all('th')] # Esconder 'th'
-    infoAtivos=pd.DataFrame(columns=colunas)
-    
-    k=0
-    for item in soup.find_all('tr'):                            #Lendo e adicionando linha a linha
-        if k!=0:
-            infoAtivos.loc[-1] = [i.getText() for i in item.find_all('td')]  
-            infoAtivos.index = infoAtivos.index + 1  
-            infoAtivos = infoAtivos.sort_index()
-        k+=1
-    return infoAtivos
+    htmlTabela=str(soup.find_all('table')[0])  
+    with open("tmp.html", "w",encoding="ISO-8859-1") as arquivoTemporario:
+        arquivoTemporario.write(htmlTabela)
+    infoAtivos = pd.read_html("tmp.html")
+    os.remove("tmp.html")
+
+    return infoAtivos[0]
 
 urlAcoes ='https://www.fundamentus.com.br/resultado.php'
 urlFiis = 'https://www.fundamentus.com.br/fii_resultado.php'
@@ -50,5 +50,7 @@ fiis = coletaDadosHTML(htmlFiis)
 print(acoes)
 print(fiis)
 
-acoes.to_sql(name='ACOES',con=my_conn)
-fiis.to_sql(name='FIIS',con=my_conn)
+conexao=create_engine("mysql://sqluser:password@localhost/ATIVOS")
+
+acoes.to_sql(name='acoes',con=conexao,if_exists='replace')
+fiis.to_sql(name='fiis',con=conexao,if_exists='replace')
