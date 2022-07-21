@@ -36,21 +36,22 @@ def coletaDadosHTML(html):
     os.remove("tmp.html")
 
     return infoAtivos[0]
+    
+if __name__== "__main__":
+    urlAcoes ='https://www.fundamentus.com.br/resultado.php'
+    urlFiis = 'https://www.fundamentus.com.br/fii_resultado.php'
+    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'}
 
-urlAcoes ='https://www.fundamentus.com.br/resultado.php'
-urlFiis = 'https://www.fundamentus.com.br/fii_resultado.php'
-headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'}
+    htmlAcoes = requisitaURL(urlAcoes, headers)
+    htmlFiis = requisitaURL(urlFiis, headers)
 
-htmlAcoes = requisitaURL(urlAcoes, headers)
-htmlFiis = requisitaURL(urlFiis, headers)
+    acoes = coletaDadosHTML(htmlAcoes)
+    fiis = coletaDadosHTML(htmlFiis)
 
-acoes = coletaDadosHTML(htmlAcoes)
-fiis = coletaDadosHTML(htmlFiis)
+    print(acoes)
+    print(fiis)
 
-print(acoes)
-print(fiis)
+    conexao=create_engine("mysql://sqluser:password@localhost/ATIVOS")
 
-conexao=create_engine("mysql://sqluser:password@localhost/ATIVOS")
-
-acoes.to_sql(name='acoes',con=conexao,if_exists='replace')
-fiis.to_sql(name='fiis',con=conexao,if_exists='replace')
+    acoes.to_sql(name='acoes',con=conexao,if_exists='replace')
+    fiis.to_sql(name='fiis',con=conexao,if_exists='replace')
